@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './Auth.css'; // 회원가입 페이지와 동일한 CSS 파일 사용
+import './Auth.css'; // 기존 CSS 사용
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -19,7 +19,6 @@ function LoginPage() {
 
       if (response.status === 200) {
         alert('로그인 성공!');
-        // 로그인 성공 후 프로필 페이지로 이동
         navigate('/profile'); 
       }
     } catch (error) {
@@ -32,19 +31,44 @@ function LoginPage() {
     }
   };
 
+  // 회원가입 페이지로 이동
+  const handleSignUpClick = () => {
+    navigate('/signup'); // SignUpPage 경로
+  };
+
   return (
     <div className="signup-container">
       <h1>로그인</h1>
       <form onSubmit={handleLogin} className="signup-form">
         <div className="form-group">
           <label>이메일:</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <input 
+            type="email" 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+            required 
+          />
         </div>
         <div className="form-group">
           <label>비밀번호:</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <input 
+            type="password" 
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)} 
+            required 
+          />
         </div>
         <button type="submit" className="signup-button">로그인</button>
+
+        {/* 회원가입 버튼 추가 */}
+        <button 
+          type="button" 
+          className="signup-button" 
+          style={{ marginTop: '10px', backgroundColor: '#34d399' }} 
+          onClick={handleSignUpClick}
+        >
+          회원가입
+        </button>
       </form>
     </div>
   );
