@@ -1,24 +1,24 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Header from './components/common/Header'; 
+import Footer from './components/common/Footer'; 
+import SignUpPage from './pages/Auth/SignUpPage';
+import LoginPage from './pages/Auth/LoginPage';
+import ProfilePage from './pages/Profile/ProfilePage';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Header /> {/* Routes 위에 Header 컴포넌트 추가 */}
+      <main style={{ padding: '20px' }}>
+        <Routes>
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+        </Routes>
+      </main>
+      <Footer /> {/* Routes 아래에 Footer 컴포넌트 추가 */}
+    </Router>
   );
 }
 
