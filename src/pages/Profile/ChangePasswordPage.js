@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import './ProfilePage.css';
+import React, { useState } from 'react'; 
+import styles from './ProfilePage.module.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -50,10 +50,10 @@ function ChangePasswordPage() {
   };
 
   return (
-    <div className="profile-container">
+    <div className={styles.profileContainer}>
       <h1>비밀번호 변경</h1>
-      <form className="profile-card" onSubmit={handleChangePassword}>
-        <div className="form-group">
+      <form className={styles.profileCard} onSubmit={handleChangePassword}>
+        <div className={styles.formGroup}>
           <label>현재 비밀번호:</label>
           <input
             type="password"
@@ -63,7 +63,8 @@ function ChangePasswordPage() {
             required
           />
         </div>
-        <div className="form-group">
+
+        <div className={styles.formGroup}>
           <label>새 비밀번호:</label>
           <input
             type="password"
@@ -72,13 +73,14 @@ function ChangePasswordPage() {
             onChange={(e) => setNewPassword(e.target.value)}
             required
           />
-          <div style={{ fontSize: '0.9em', marginTop: '5px', textAlign: 'left' }}>
+          <div style={{ fontSize: '0.9em', marginTop: '5px', textAlign: 'left', width: '250px' }}>
             <div>{getSymbol(conditions.type)} 영문/숫자/특수문자 중, 2가지 이상 포함</div>
             <div>{getSymbol(conditions.length)} 8자 이상 32자 이하 입력 (공백 제외)</div>
             <div>{getSymbol(conditions.repeat)} 연속 3자 이상 동일한 문자/숫자 제외</div>
           </div>
         </div>
-        <div className="form-group">
+
+        <div className={styles.formGroup}>
           <label>새 비밀번호 확인:</label>
           <input
             type="password"
@@ -88,7 +90,11 @@ function ChangePasswordPage() {
             required
           />
         </div>
-        <button type="submit" className="action-button">변경</button>
+
+        <div className={styles.profileActions}>
+          <button type="submit" className={styles.actionButton}>변경</button>
+          <button type="button" className={styles.cancelButton} onClick={() => navigate('/profile')}>취소</button>
+        </div>
       </form>
     </div>
   );

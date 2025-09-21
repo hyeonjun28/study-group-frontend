@@ -1,0 +1,66 @@
+.profileContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh; /* 화면 높이 80% */
+  text-align: center;
+}
+
+.profileCard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* 요소 사이 간격 */
+  padding: 40px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  align-items: center;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* label 왼쪽 정렬 */
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.formGroup label {
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.formGroup input {
+  width: 250px; /* 입력란 폭 */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.profileActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.actionButton,
+.cancelButton {
+  padding: 8px 20px;       /* 버튼 크기 조정 */
+  background-color: #007bff; /* 파랑 통일 */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  flex: 1;                  /* 두 버튼 길이 동일 */
+  text-align: center;
+}
+
+.actionButton:hover,
+.cancelButton:hover {
+  background-color: #0056b3; /* hover 색상 */
+}

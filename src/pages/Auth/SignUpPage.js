@@ -9,7 +9,6 @@ function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
-  // 비밀번호 조건 체크 함수
   const checkPasswordConditions = (pwd) => {
     const noSpaces = pwd.replace(/\s/g, '');
     return {
@@ -38,7 +37,7 @@ function SignUpPage() {
       const response = await axios.post('백엔드_서버_주소/api/auth/signup', { email, password });
       if (response.status === 201) {
         alert('회원가입 성공!');
-        navigate('/login'); // 성공 시 로그인 페이지 이동
+        navigate('/login');
       }
     } catch (error) {
       if (error.response && error.response.status === 409) {
@@ -51,15 +50,15 @@ function SignUpPage() {
   };
 
   const getSymbol = (condition) => {
-    if (password === '') return '✔️'; // 초기 상태 검정 체크
-    return condition ? '✅' : '❌';    // 조건 충족 초록, 미충족 빨강
+    if (password === '') return '✔️';
+    return condition ? '✅' : '❌';
   };
 
   return (
-    <div className="signup-container">
+    <div className="auth-container">
       <h1>회원가입</h1>
-      <form onSubmit={handleSignUp} className="signup-form">
-        <div className="form-group">
+      <form onSubmit={handleSignUp} className="auth-form">
+        <div className="auth-form-group">
           <label>이메일:</label>
           <input
             type="email"
@@ -70,7 +69,7 @@ function SignUpPage() {
           />
         </div>
 
-        <div className="form-group">
+        <div className="auth-form-group">
           <label>비밀번호:</label>
           <input
             type="password"
@@ -79,14 +78,14 @@ function SignUpPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <div style={{ fontSize: '0.9em', marginTop: '5px', textAlign: 'left' }}>
+          <div className="auth-password-hint">
             <div>{getSymbol(conditions.type)} 영문/숫자/특수문자 중, 2가지 이상 포함</div>
             <div>{getSymbol(conditions.length)} 8자 이상 32자 이하 입력 (공백 제외)</div>
             <div>{getSymbol(conditions.repeat)} 연속 3자 이상 동일한 문자/숫자 제외</div>
           </div>
         </div>
 
-        <div className="form-group">
+        <div className="auth-form-group">
           <label>비밀번호 확인:</label>
           <input
             type="password"
@@ -97,7 +96,7 @@ function SignUpPage() {
           />
         </div>
 
-        <button type="submit" className="signup-button">회원가입</button>
+        <button type="submit" className="auth-button">회원가입</button>
       </form>
     </div>
   );
