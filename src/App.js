@@ -17,6 +17,8 @@ import StudyListPage from './pages/Study/StudyListPage';
 import StudyWritePage from './pages/Study/StudyWritePage';
 import StudyDetailPage from './pages/Study/StudyDetailPage';
 
+// schedule 관련
+import SchedulePage from './pages/Schedule/SchedulePage';
 function App() {
   return (
     <Router>
@@ -36,6 +38,9 @@ function App() {
           <Route path="/study" element={<StudyListPage />} />
           <Route path="/study/write" element={<StudyWritePage />} />
           <Route path="/study/:id" element={<StudyDetailPage />} />
+        
+          {/* 일정 관리 */}
+          <Route path="/schedule" element={<SchedulePage />} />
         </Routes>
       </main>
       <Footer />

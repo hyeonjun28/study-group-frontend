@@ -28,6 +28,7 @@ function LoginPage() {
           <input 
             type="email"
             value={email}
+            placeholder="example@naver.com" // 흐릿하게 예시 표시
             onChange={(e) => setEmail(e.target.value)}
             required
           />
@@ -37,6 +38,7 @@ function LoginPage() {
           <input 
             type="password"
             value={password}
+            placeholder="********" // 흐릿하게 예시 표시
             onChange={(e) => setPassword(e.target.value)}
             required
           />

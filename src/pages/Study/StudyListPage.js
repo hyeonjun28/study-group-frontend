@@ -1,3 +1,4 @@
+// StudyListPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Study.css';
@@ -7,10 +8,7 @@ function StudyListPage() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    const savedPosts = JSON.parse(localStorage.getItem('studyPosts')) || [
-      { title: "첫 번째 스터디", content: "이것은 테스트 글입니다.", joined: 0 }
-    ];
-    localStorage.setItem('studyPosts', JSON.stringify(savedPosts));
+    const savedPosts = JSON.parse(localStorage.getItem('studyPosts')) || [];
     setPosts(savedPosts);
   }, []);
 
@@ -27,15 +25,20 @@ function StudyListPage() {
         <p>아직 등록된 글이 없습니다.</p>
       ) : (
         <ul className="study-list">
-          {posts.map((post, index) => (
+          {posts.map((post) => (
             <li
-              key={index}
+              key={post.id}
               className="study-item"
-              onClick={() => navigate(`/study/${index}`)}
+              onClick={() => navigate(`/study/${post.id}`)}
             >
-              <h3>{post.title}</h3>
+              <div className="study-item-header">
+                <h3 className="study-item-title">{post.title}</h3>
+                <span className="study-item-status">
+                  {post.isJoined ? "참여중" : "모집중"}
+                </span>
+              </div>
               <p>{post.content.length > 100 ? post.content.slice(0, 100) + '...' : post.content}</p>
-              {post.joined ? <p>참여자 수: {post.joined}</p> : null}
+              <p>참여자 수: {post.joinedCount || 0}</p>
             </li>
           ))}
         </ul>

@@ -34,6 +34,17 @@ function SignUpPage() {
     }
 
     try {
+      // 예시용: 실제 서버 연동 전, 특정 이메일/비밀번호 테스트
+      const exampleEmail = 'example@naver.com';
+      const examplePassword = '********';
+      
+      if (email === exampleEmail && password === examplePassword) {
+        alert('회원가입 성공! (예시 계정)');
+        navigate('/login');
+        return;
+      }
+
+      // 실제 서버 요청
       const response = await axios.post('백엔드_서버_주소/api/auth/signup', { email, password });
       if (response.status === 201) {
         alert('회원가입 성공!');
@@ -63,7 +74,7 @@ function SignUpPage() {
           <input
             type="email"
             value={email}
-            placeholder="example@naver.com"
+            placeholder="example@naver.com" // 이메일 예시
             onChange={(e) => setEmail(e.target.value)}
             required
           />
@@ -74,7 +85,7 @@ function SignUpPage() {
           <input
             type="password"
             value={password}
-            placeholder="********"
+            placeholder="********" // 비밀번호 예시
             onChange={(e) => setPassword(e.target.value)}
             required
           />
@@ -90,7 +101,7 @@ function SignUpPage() {
           <input
             type="password"
             value={confirmPassword}
-            placeholder="********"
+            placeholder="********" // 비밀번호 확인 예시
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />

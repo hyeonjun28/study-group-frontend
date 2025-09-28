@@ -13,7 +13,10 @@ function Header() {
             <Link to="/profile" style={{ color: 'white', textDecoration: 'none' }}>프로필</Link>
           </li>
           <li>
-            <Link to="Study" style={{ color: 'white', textDecoration: 'none' }}>스터디</Link>
+            <Link to="/study" style={{ color: 'white', textDecoration: 'none' }}>스터디</Link>
+          </li>
+          <li>
+            <Link to="/schedule" style={{ color: 'white', textDecoration: 'none' }}>일정 관리</Link>
           </li>
         </ul>
       </nav>
