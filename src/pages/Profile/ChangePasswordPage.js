@@ -1,103 +1,77 @@
-import React, { useState } from 'react'; 
-import styles from './ProfilePage.module.css';
+import React, { useState } from 'react'; // useState를 import 합니다.
+import './ProfilePage.css';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
-function ChangePasswordPage() {
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+function ProfilePage() {
   const navigate = useNavigate();
 
-  const checkPasswordConditions = (pwd) => {
-    const noSpaces = pwd.replace(/\s/g, '');
-    return {
-      length: noSpaces.length >= 8 && noSpaces.length <= 32,
-      type: [/[a-zA-Z]/.test(noSpaces), /[0-9]/.test(noSpaces), /[!@#$%^&*(),.?":{}|<>]/.test(noSpaces)].filter(Boolean).length >= 2,
-      repeat: !(/([a-zA-Z0-9!@#$%^&*(),.?":{}|<>])\1\1/.test(noSpaces))
-    };
+  // 임시 데이터
+  const user = {
+    name: '홍길동',
+    email: 'hong@example.com',
+    joinDate: '2025-09-27'
   };
 
-  const conditions = checkPasswordConditions(newPassword);
+  // 👇 1. 프로필 이미지 관리를 위한 useState 추가
+  // 초기값으로 임시 데이터의 이미지 URL을 사용합니다.
+  const [profileImage, setProfileImage] = useState('https://via.placeholder.com/150');
 
-  const getSymbol = (condition) => {
-    if (newPassword === '') return '✔️';
-    return condition ? '✅' : '❌';
+  // 👇 2. 이미지 파일이 선택됐을 때 실행될 함수 추가
+  const handleImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      // 선택한 이미지 파일을 브라우저에서만 보이는 임시 URL로 만들어서 상태를 업데이트합니다.
+      setProfileImage(URL.createObjectURL(file));
+    }
   };
 
-  const handleChangePassword = async (e) => {
-    e.preventDefault();
-    if (newPassword !== confirmPassword) {
-      alert('새 비밀번호와 확인 비밀번호가 일치하지 않습니다.');
-      return;
-    }
-    if (!conditions.length || !conditions.type || !conditions.repeat) {
-      alert('비밀번호 조건을 확인하세요.');
-      return;
-    }
-
-    try {
-      await axios.patch('백엔드_서버_주소/api/profile/password', {
-        currentPassword,
-        newPassword
-      });
-      alert('비밀번호 변경 성공!');
-      navigate('/profile');
-    } catch (error) {
-      alert('비밀번호 변경 실패');
-      console.error('비밀번호 변경 실패:', error.response ? error.response.data : error);
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('loggedInUser');
+    alert('로그아웃 되었습니다.');
+    navigate('/login');
   };
 
   return (
-    <div className={styles.profileContainer}>
-      <h1>비밀번호 변경</h1>
-      <form className={styles.profileCard} onSubmit={handleChangePassword}>
-        <div className={styles.formGroup}>
-          <label>현재 비밀번호:</label>
-          <input
-            type="password"
-            placeholder="********"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            required
-          />
-        </div>
+    <div className="profile-container">
+      <h1>내 프로필</h1>
+      <div className="profile-card">
+        <div className="profile-info">
+        
+          {/* 👇 3. 이미지 업로드 UI 추가 */}
+          <div className="profile-image-wrapper">
+            <img src={profileImage} alt="프로필" className="profile-image" />
+            <label htmlFor="profileImageUpload" className="image-upload-button">
+              ✏️
+            </label>
+            <input 
+              id="profileImageUpload"
+              type="file" 
+              accept="image/*" 
+              onChange={handleImageChange} 
+              style={{ display: 'none' }} 
+            />
+          </div>
 
-        <div className={styles.formGroup}>
-          <label>새 비밀번호:</label>
-          <input
-            type="password"
-            placeholder="********"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            required
-          />
-          <div style={{ fontSize: '0.9em', marginTop: '5px', textAlign: 'left', width: '250px' }}>
-            <div>{getSymbol(conditions.type)} 영문/숫자/특수문자 중, 2가지 이상 포함</div>
-            <div>{getSymbol(conditions.length)} 8자 이상 32자 이하 입력 (공백 제외)</div>
-            <div>{getSymbol(conditions.repeat)} 연속 3자 이상 동일한 문자/숫자 제외</div>
+          <div className="info-text">
+            <p><strong>이름:</strong> {user.name}</p>
+            <p><strong>이메일:</strong> {user.email}</p>
+            <p><strong>가입일:</strong> {user.joinDate}</p>
           </div>
         </div>
-
-        <div className={styles.formGroup}>
-          <label>새 비밀번호 확인:</label>
-          <input
-            type="password"
-            placeholder="********"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
+        <div className="profile-actions">
+          <button className="action-button" onClick={() => navigate('/change-password')}>
+            비밀번호 변경
+          </button>
+          <button className="action-button logout" onClick={handleLogout}>
+            로그아웃
+          </button>
+          <button className="action-button delete" onClick={() => navigate('/delete-account')}>
+            회원 탈퇴
+          </button>
         </div>
-
-        <div className={styles.profileActions}>
-          <button type="submit" className={styles.actionButton}>변경</button>
-          <button type="button" className={styles.cancelButton} onClick={() => navigate('/profile')}>취소</button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 }
 
-export default ChangePasswordPage;
+export default ProfilePage;

@@ -1,27 +1,36 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import './Header.css';
+import logo from '../../assets/images/study.jpg'; // 👈 확장자를 .jpg로 최종 수정했습니다.
 
-function Header() {
+const Header = () => {
   return (
-    <header style={{ padding: '10px', backgroundColor: '#333', color: 'white' }}>
-      <nav>
-        <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', gap: '20px' }}>
-          <li>
-            <Link to="/login" style={{ color: 'white', textDecoration: 'none' }}>로그인</Link>
-          </li>
-          <li>
-            <Link to="/profile" style={{ color: 'white', textDecoration: 'none' }}>프로필</Link>
-          </li>
-          <li>
-            <Link to="/study" style={{ color: 'white', textDecoration: 'none' }}>스터디</Link>
-          </li>
-          <li>
-            <Link to="/schedule" style={{ color: 'white', textDecoration: 'none' }}>일정 관리</Link>
-          </li>
-        </ul>
-      </nav>
+    <header className="header-container">
+      <div className="header-left">
+        <Link to="/" className="header-logo">
+          <img src={logo} alt="S&C Study & Connect Logo" />
+        </Link>
+        <nav className="header-nav">
+          <Link to="/profile">프로필</Link>
+          <Link to="/study">스터디</Link>
+          <Link to="/schedule">일정 관리</Link>
+        </nav>
+      </div>
+
+      <div className="header-center">
+        <input 
+          type="text" 
+          placeholder="관심있는 스터디를 검색해보세요" 
+          className="search-input" 
+        />
+      </div>
+
+      <div className="header-right">
+        <Link to="/login" className="auth-link login-button">로그인</Link>
+        <Link to="/signup" className="auth-link signup-button">회원가입</Link>
+      </div>
     </header>
   );
-}
+};
 
 export default Header;
