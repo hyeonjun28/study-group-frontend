@@ -1,4 +1,3 @@
-// StudyDetailPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './Study.css';
@@ -22,10 +21,7 @@ function StudyDetailPage() {
   if (!post) return <p>존재하지 않는 글입니다.</p>;
 
   const handleJoin = () => {
-    if (post.isJoined) {
-      alert("이미 참여한 스터디입니다.");
-      return;
-    }
+    if (post.isJoined) { alert("이미 참여한 스터디입니다."); return; }
     const posts = JSON.parse(localStorage.getItem('studyPosts')) || [];
     const updatedPosts = posts.map(p =>
       p.id === post.id ? { ...p, joinedCount: (p.joinedCount || 0) + 1, isJoined: true } : p
@@ -39,11 +35,8 @@ function StudyDetailPage() {
     if (!newComment.trim()) return;
     const updatedComments = [...comments, newComment];
     setComments(updatedComments);
-
     const posts = JSON.parse(localStorage.getItem('studyPosts')) || [];
-    const updatedPosts = posts.map(p =>
-      p.id === post.id ? { ...p, comments: updatedComments } : p
-    );
+    const updatedPosts = posts.map(p => p.id === post.id ? { ...p, comments: updatedComments } : p);
     localStorage.setItem('studyPosts', JSON.stringify(updatedPosts));
     setPost(updatedPosts.find(p => p.id === post.id));
     setNewComment("");
@@ -52,27 +45,20 @@ function StudyDetailPage() {
   const handleDeleteComment = (index) => {
     const updatedComments = comments.filter((_, i) => i !== index);
     setComments(updatedComments);
-
     const posts = JSON.parse(localStorage.getItem('studyPosts')) || [];
-    const updatedPosts = posts.map(p =>
-      p.id === post.id ? { ...p, comments: updatedComments } : p
-    );
+    const updatedPosts = posts.map(p => p.id === post.id ? { ...p, comments: updatedComments } : p);
     localStorage.setItem('studyPosts', JSON.stringify(updatedPosts));
     setPost(updatedPosts.find(p => p.id === post.id));
   };
 
   const handleDelete = () => {
     if (!window.confirm("정말 이 글을 삭제하시겠습니까?")) return;
-
     const posts = JSON.parse(localStorage.getItem('studyPosts')) || [];
     const updatedPosts = posts.filter(p => p.id !== post.id);
     localStorage.setItem('studyPosts', JSON.stringify(updatedPosts));
-
-    // 삭제된 글과 연관된 일정 삭제
     const schedules = JSON.parse(localStorage.getItem('schedule')) || [];
     const updatedSchedules = schedules.filter(s => s.studyId !== post.id);
     localStorage.setItem('schedule', JSON.stringify(updatedSchedules));
-
     alert("게시글이 삭제되었습니다.");
     navigate('/study');
   };
@@ -103,12 +89,7 @@ function StudyDetailPage() {
             </li>
           ))}
         </ul>
-        <input
-          type="text"
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder="댓글을 입력하세요"
-        />
+        <input type="text" value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="댓글을 입력하세요" />
         <button className="comment-register" onClick={handleAddComment}>등록</button>
       </div>
     </div>

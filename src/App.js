@@ -11,7 +11,7 @@ import LoginPage from './pages/Auth/LoginPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 import ChangePasswordPage from './pages/Profile/ChangePasswordPage';
 import DeleteAccountPage from './pages/Profile/DeleteAccountPage';
-
+  
 // Study 관련
 import StudyListPage from './pages/Study/StudyListPage';
 import StudyWritePage from './pages/Study/StudyWritePage';

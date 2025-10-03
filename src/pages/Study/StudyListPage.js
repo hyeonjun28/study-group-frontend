@@ -1,56 +1,80 @@
-// StudyListPage.jsx
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Study.css';
 
 function StudyListPage() {
   const navigate = useNavigate();
-  
-  // 기존 스터디 목록 상태
   const [posts, setPosts] = useState([]);
-  
-  // 👇 새로 추가된 상태들
   const [searchTerm, setSearchTerm] = useState('');
+
   const [bookmarked, setBookmarked] = useState(() => {
-    // localStorage에서 찜 목록을 불러옵니다.
     const saved = localStorage.getItem('bookmarkedStudies');
     return saved ? JSON.parse(saved) : [];
   });
 
-  // 기존 글 불러오기
+  const [liked, setLiked] = useState(() => {
+    const saved = localStorage.getItem('likedStudies');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false);
+  const [sortOption, setSortOption] = useState('latest'); // latest, comments, bookmarks
+
+  // 로컬스토리지에서 게시글 불러오기
   useEffect(() => {
     const savedPosts = JSON.parse(localStorage.getItem('studyPosts')) || [];
     setPosts(savedPosts);
   }, []);
 
-  // 👇 찜 목록이 변경될 때마다 localStorage에 저장
+  // 찜/좋아요 상태 저장
   useEffect(() => {
     localStorage.setItem('bookmarkedStudies', JSON.stringify(bookmarked));
   }, [bookmarked]);
 
+  useEffect(() => {
+    localStorage.setItem('likedStudies', JSON.stringify(liked));
+  }, [liked]);
+
   const handleWriteClick = () => navigate('/study/write');
 
-  // 👇 찜 목록 토글 함수
   const toggleBookmark = (postId) => {
-    setBookmarked(prev => 
-      prev.includes(postId) 
-        ? prev.filter(id => id !== postId) 
+    setBookmarked(prev =>
+      prev.includes(postId)
+        ? prev.filter(id => id !== postId)
         : [...prev, postId]
     );
   };
-  
-  // 👇 검색어에 따라 스터디 목록을 필터링합니다.
-  const filteredPosts = posts.filter(post =>
+
+  const toggleLike = (postId) => {
+    setLiked(prev =>
+      prev.includes(postId)
+        ? prev.filter(id => id !== postId)
+        : [...prev, postId]
+    );
+  };
+
+  // 필터링
+  let filteredPosts = posts.filter(post =>
     post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     post.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  if (showBookmarkedOnly) {
+    filteredPosts = filteredPosts.filter(post => bookmarked.includes(post.id));
+  }
+
+  // 정렬
+  filteredPosts.sort((a, b) => {
+    if (sortOption === 'latest') return b.id - a.id;
+    if (sortOption === 'comments') return (b.comments?.length || 0) - (a.comments?.length || 0);
+    if (sortOption === 'bookmarks') return (bookmarked.includes(b.id) ? 1 : 0) - (bookmarked.includes(a.id) ? 1 : 0);
+    return 0;
+  });
+
   return (
     <div className="study-page-container">
       <h1>스터디 목록</h1>
-      <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        {/* 👇 검색창 추가 */}
+      <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
         <input
           type="text"
           placeholder="스터디 검색"
@@ -59,43 +83,49 @@ function StudyListPage() {
           style={{ padding: '10px', width: '300px' }}
         />
         <button className="study-page-button" onClick={handleWriteClick}>글쓰기</button>
+        <button className="study-page-button" onClick={() => setShowBookmarkedOnly(prev => !prev)}>
+          {showBookmarkedOnly ? '전체보기' : '찜한 스터디만'}
+        </button>
+        <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+          <option value="latest">최신순</option>
+          <option value="comments">댓글순</option>
+          <option value="bookmarks">찜많은순</option>
+        </select>
       </div>
 
-      {/* 필터링된 목록을 보여줍니다. */}
       {filteredPosts.length === 0 ? (
         <p>조건에 맞는 글이 없습니다.</p>
       ) : (
         <ul className="study-list">
           {filteredPosts.map((post) => (
-            <li
-              key={post.id}
-              className="study-item"
-              // onClick={() => navigate(`/study/${post.id}`)} -> 찜 버튼 클릭 시 중복 실행 방지를 위해 삭제
-            >
-              <div 
-                className="study-item-content" 
-                onClick={() => navigate(`/study/${post.id}`)}
-              >
+            <li key={post.id} className="study-item">
+              <div className="study-item-content" onClick={() => navigate(`/study/${post.id}`)}>
                 <div className="study-item-header">
                   <h3 className="study-item-title">{post.title}</h3>
-                  <span className="study-item-status">
-                    {post.isJoined ? "참여중" : "모집중"}
-                  </span>
+                  <span className="study-item-status">{post.isJoined ? "참여중" : "모집중"}</span>
                 </div>
                 <p>{post.content.length > 100 ? post.content.slice(0, 100) + '...' : post.content}</p>
-                <p>참여자 수: {post.joinedCount || 0}</p>
+                <p>
+                  참여자 수: {post.joinedCount || 0} | 댓글 수: {post.comments?.length || 0} | 좋아요: {liked.includes(post.id) ? 1 : 0}
+                </p>
               </div>
 
-              {/* 👇 찜하기 버튼 추가 */}
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation(); // li의 클릭 이벤트가 실행되지 않도록 방지
-                  toggleBookmark(post.id);
-                }}
-                className="bookmark-button"
-              >
-                {bookmarked.includes(post.id) ? '❤️ 찜 취소' : '🤍 찜하기'}
-              </button>
+              {/* 버튼 위치 통일 */}
+              <div className="study-item-actions">
+                <button
+                  onClick={(e) => { e.stopPropagation(); toggleBookmark(post.id); }}
+                  className="bookmark-button"
+                >
+                  {bookmarked.includes(post.id) ? '❤️ 찜 취소' : '🤍 찜하기'}
+                </button>
+
+                <button
+                  onClick={(e) => { e.stopPropagation(); toggleLike(post.id); }}
+                  className="bookmark-button"
+                >
+                  {liked.includes(post.id) ? '💖 좋아요 취소' : '🤍 좋아요'}
+                </button>
+              </div>
             </li>
           ))}
         </ul>
