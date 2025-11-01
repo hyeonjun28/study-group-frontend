@@ -1,0 +1,40 @@
+/* Custom CSS - custom-style.css */
+
+/* 뷰포트 전체 높이를 사용하여 세로 중앙 정렬을 가능하게 함 */
+.min-vh-100 {
+    min-height: 100vh;
+}
+
+/* 회원가입/로그인 폼 박스 스타일 */
+.registration-box {
+    width: 100%;
+    max-width: 400px; /* 폼의 최대 너비를 설정하여 가운데로 모이게 함 */
+    background: #fff;
+    border-radius: 8px; /* 모서리 둥글게 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 깔끔한 그림자 효과 */
+}
+
+/* 어두운 색 버튼 스타일 (이미지에서 본 깔끔한 디자인을 위해) */
+.btn-dark {
+    background-color: #333;
+    border-color: #333;
+    color: white;
+    /* 버튼이 부모 요소 전체 너비를 차지하도록 설정 */
+    display: block; 
+    width: 100%;
+}
+
+.btn-dark:hover {
+    background-color: #555;
+    border-color: #555;
+}
+
+/* 폼 라벨의 텍스트를 왼쪽 정렬 */
+.text-left {
+    text-align: left !important;
+}
+
+/* 폼 컨트롤 (input)의 높이 조정 (옵션) */
+.form-control {
+    height: 45px; 
+}
