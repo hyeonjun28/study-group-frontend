@@ -26,3 +26,8 @@ node_modules/
 build/ 
 /bin/ 
 .DS_Store 
+node_modules/ 
+.gradle/ 
+build/ 
+/bin/ 
+.DS_Store 

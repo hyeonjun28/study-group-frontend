@@ -26,8 +26,7 @@ const Header = () => {
       </div>
 
       <div className="header-right">
-        <Link to="/login" className="auth-link login-button">로그인</Link>
-        <Link to="/signup" className="auth-link signup-button">회원가입</Link>
+
       </div>
     </header>
   );
