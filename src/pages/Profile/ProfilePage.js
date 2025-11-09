@@ -1,54 +1,87 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ProfilePage.css';
 import { useNavigate } from 'react-router-dom';
+import api from '../../api/axios'; // API 모듈 import
 
 function ProfilePage() {
   const navigate = useNavigate();
 
-  const user = {
-    name: '홍길동',
-    email: 'hong@example.com',
-    joinDate: '2025-09-27'
-  };
+  // 초기 상태를 null 또는 빈 값으로 설정
+  const [user, setUser] = useState(null); 
+  const [loading, setLoading] = useState(true); // 로딩 상태 추가
+  const [error, setError] = useState(null); // 에러 상태 추가
 
-  const [profileImage, setProfileImage] = useState('https://via.placeholder.com/150');
-
-  // 👇 1. 모달(팝업) 창이 보이는지 여부를 관리하는 상태 추가
+  const [profileImage, setProfileImage] = useState('[https://via.placeholder.com/150](https://via.placeholder.com/150)');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // 👇 2. 비밀번호 필드를 관리하는 상태들 추가
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  // 컴포넌트 마운트 시 내 정보 불러오기
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        // GET 요청 보내기 (헤더에 토큰은 자동으로 포함됨)
+        const response = await api.get('/api/profile'); // 백엔드 엔드포인트 확인 필요
+        setUser(response.data); // 받아온 데이터로 user 상태 업데이트
+        // 만약 프로필 이미지 URL도 서버에서 준다면 여기서 setProfileImage도 업데이트
+      } catch (err) {
+        console.error("프로필 정보 불러오기 실패:", err);
+        setError("정보를 불러오는데 실패했습니다.");
+        // 토큰이 만료되었거나 유효하지 않으면 로그인 페이지로 보낼 수도 있음
+        if (err.response && err.response.status === 401) {
+            alert("로그인 세션이 만료되었습니다.");
+            navigate('/login');
+        }
+      } finally {
+        setLoading(false); // 로딩 완료
+      }
+    };
+
+    fetchProfile();
+  }, [navigate]);
+
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setProfileImage(URL.createObjectURL(file));
+      // TODO: 실제로는 여기서 파일을 서버로 전송하는 API 호출이 필요함
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('loggedInUser');
+    localStorage.removeItem('accessToken'); // 토큰 삭제
     alert('로그아웃 되었습니다.');
     navigate('/login');
   };
   
-  // 👇 3. 비밀번호 변경 폼 제출 시 실행될 함수 추가
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => { // async 추가
     e.preventDefault();
     if (newPassword !== confirmPassword) {
       alert('새 비밀번호가 일치하지 않습니다.');
       return;
     }
-    // (백엔드 없을 시) 시뮬레이션
-    alert('비밀번호가 성공적으로 변경되었습니다!');
-    setIsModalOpen(false); // 모달 닫기
-    // 입력 필드 초기화
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
+
+    try {
+        // 실제 비밀번호 변경 API 호출 예시
+        await api.post('/api/change-password', {
+            currentPassword,
+            newPassword
+        });
+        alert('비밀번호가 성공적으로 변경되었습니다!');
+        setIsModalOpen(false);
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+    } catch (err) {
+        alert(err.response?.data?.message || '비밀번호 변경 실패');
+    }
   };
 
+  if (loading) return <div>로딩 중...</div>;
+  if (error) return <div>에러 발생: {error}</div>;
+  if (!user) return <div>사용자 정보가 없습니다.</div>;
 
   return (
     <div className="profile-container">
@@ -70,13 +103,16 @@ function ProfilePage() {
           </div>
 
           <div className="info-text">
+            {/* 받아온 user 데이터 표시 */}
             <p><strong>이름:</strong> {user.name}</p>
             <p><strong>이메일:</strong> {user.email}</p>
-            <p><strong>가입일:</strong> {user.joinDate}</p>
+            {/* 생년월일, 성별 등 추가 정보가 있다면 여기에 표시 */}
+            {user.birthDate && <p><strong>생년월일:</strong> {user.birthDate}</p>}
+            {user.gender && <p><strong>성별:</strong> {user.gender}</p>}
+             {/* <p><strong>가입일:</strong> {user.joinDate}</p> */}
           </div>
         </div>
         <div className="profile-actions">
-          {/* 👇 4. 기존 버튼의 navigate 기능을 모달 열기로 변경 */}
           <button className="action-button" onClick={() => setIsModalOpen(true)}>
             비밀번호 변경
           </button>
@@ -89,7 +125,7 @@ function ProfilePage() {
         </div>
       </div>
 
-      {/* 👇 5. 모달(팝업) UI 추가 */}
+      {/* 모달 UI는 기존과 동일 */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">

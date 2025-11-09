@@ -1,18 +1,16 @@
 package com.example.demo;
 
 import java.util.Map;
-
-// ... (다른 import 생략)
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // 암호화를 위해 필요
 import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping; // <-- @GetMapping import 추가
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.demo.ChangePasswordRequest;
 import jakarta.transaction.Transactional;
 
 
@@ -23,46 +21,48 @@ public class AuthController {
 	@Autowired
 	private UserRepository repo; // User 엔티티 저장을 위해 필요
 	
-	// (로그인 DTO 및 로직 생략...)
-	// ... @PostMapping("/login") 메서드 ...
+	/** 비밀번호 변경 요청 DTO (ChangePasswordRequest) 정의 **/
+	public static class ChangePasswordRequest {
+	    private String currentPassword;
+	    private String newPassword;
+	    
+	    // Getters and Setters
+	    public String getCurrentPassword() { return currentPassword; }
+	    public void setCurrentPassword(String currentPassword) { this.currentPassword = currentPassword; }
+	    public String getNewPassword() { return newPassword; }
+	    public void setNewPassword(String newPassword) { this.newPassword = newPassword; }
+	}
+	
+	/** 로그인 요청 DTO (LoginRequest) 정의 **/
+	// 로그인 시 필요한 username(email)과 password만 포함해야 합니다.
 	public static class LoginRequest {
 	    private String username; // 프론트의 email 값이 바인딩됨
 	    private String password;
 	    
-	    // Getter, Setter 생략... (IDE에서 자동 생성하거나 직접 추가해야 합니다)
-	    public String getUsername() {
-	        return username;
-	    }
-	    public String getPassword() {
-	        return password;
-	    }
-	    // ...
-	 // AuthController.java 파일 내부
-
-	 // 비밀번호 변경 요청을 위한 DTO
+	    // Getters and Setters
+	    public String getUsername() { return username; }
+	    public void setUsername(String username) { this.username = username; }
+	    public String getPassword() { return password; }
+	    public void setPassword(String password) { this.password = password; }
 	}
 	
 	
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-	    String email = request.getUsername(); // 프론트에서 보낸 username(실제로는 email)
-	    String rawPassword = request.getPassword(); // 사용자가 입력한 평문 비밀번호
+	    String email = request.getUsername();
+	    String rawPassword = request.getPassword();
 	    
-	    // 1. 해당 이메일로 DB에서 사용자 정보를 조회
-	    User user = repo.findByEmail(email); // 🚨 findByEmail 메서드가 UserRepository에 정의되어 있어야 합니다!
+	    User user = repo.findByEmail(email);
 
 	    if (user == null) {
-	        // 사용자가 존재하지 않는 경우
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "message", "아이디 또는 비밀번호 오류입니다."));
 	    }
 
-	    // 2. 비밀번호 비교 (암호화된 비밀번호 vs. 사용자가 입력한 평문 비밀번호)
 	    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 	    boolean passwordMatches = encoder.matches(rawPassword, user.getPassword());
 
 	    if (passwordMatches) {
 	        // 인증 성공 시
-	        // 🚨 실제 프로젝트에서는 JWT 토큰 등을 생성하여 응답해야 합니다.
 	        return ResponseEntity.ok(Map.of("success", true, "message", "로그인 성공"));
 	    } else {
 	        // 비밀번호가 일치하지 않는 경우
@@ -89,37 +89,55 @@ public class AuthController {
 		}
 	}
 	
-	// AuthController.java 파일 내부에 추가
+    // 🔑 프로필 정보 조회 API (ProfilePage.js에서 DB 데이터를 가져오는 핵심 기능)
+	@GetMapping("/profile")
+	public ResponseEntity<?> getProfile(Authentication authentication) {
+	    // 1. Spring Security Context에서 현재 로그인된 사용자의 ID(Principal, 이메일)를 추출합니다.
+	    String authenticatedEmail = authentication.getName(); 
+
+	    // 2. 인증된 이메일로 DB에서 사용자 정보를 조회합니다.
+	    User user = repo.findByEmail(authenticatedEmail);
+
+	    if (user == null) {
+	        // 사용자를 찾을 수 없는 경우
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("success", false, "message", "사용자 정보를 찾을 수 없습니다."));
+	    }
+	    
+	    // 3. 보안을 위해 비밀번호 필드를 제거(null 처리)한 후 전송합니다.
+	    user.setPassword(null); 
+	    
+	    // 4. 프로필 정보를 JSON 형태로 반환합니다.
+	    return ResponseEntity.status(HttpStatus.OK).body(user);
+	}
+	
+	// 비밀번호 변경 API
 	@Transactional
 	@PostMapping("/changepassword")
 	public ResponseEntity<?> changePassword(
 	    @RequestBody ChangePasswordRequest request,
-	    Authentication authentication // 🚨 1. 인증된 사용자 정보를 주입받습니다.
+	    Authentication authentication
 	) {
-	    // 2. Spring Security Context에서 현재 로그인된 사용자의 ID(Principal)를 추출합니다.
+	    // 1. 인증된 사용자 ID(이메일) 추출
 	    String authenticatedEmail = authentication.getName(); 
 
-	    // 3. 인증된 이메일로 DB에서 사용자 정보를 조회합니다.
+	    // 2. DB에서 사용자 정보 조회
 	    User user = repo.findByEmail(authenticatedEmail); 
 
 	    if (user == null) {
-	        // 이론적으로 발생하기 어려운 상황
 	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("success", false, "message", "사용자 정보를 찾을 수 없습니다."));
 	    }
 	    
-	    // 4. 현재 비밀번호 검증 로직 (기존과 동일)
+	    // 3. 현재 비밀번호 검증
 	    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 	    if (!encoder.matches(request.getCurrentPassword(), user.getPassword())) {
-	        // 이 검증에서 실패하면 '현재 비밀번호 불일치' 오류 메시지를 반환합니다.
 	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("success", false, "message", "비밀번호 변경에 실패했습니다. 현재 비밀번호를 다시 확인해주세요."));
 	    }
 	    
-	    // 5. 새 비밀번호 암호화 및 업데이트
+	    // 4. 새 비밀번호 암호화 및 업데이트
 	    String newEncodedPassword = encoder.encode(request.getNewPassword());
 	    user.setPassword(newEncodedPassword);
 	    
-	    // 트랜잭션이 활성화되어 있으므로 자동으로 DB에 반영됩니다.
-	    
+	    // 5. 응답
 	    return ResponseEntity.status(HttpStatus.OK).body(Map.of("success", true, "message", "비밀번호가 성공적으로 변경되었습니다."));
 	}
 }

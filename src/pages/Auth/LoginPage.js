@@ -12,9 +12,11 @@ function LoginPage() {
 
     try {
       const res = await api.post(  // ✅ axios → api
-        "/api/auth/login",
-        { email, password },
-        { withCredentials: true }
+        "/api/login",
+        {
+          username: email,
+          password: password
+        }
       );
 
       if (res.data.success) {
@@ -36,7 +38,7 @@ function LoginPage() {
         <div className="auth-form-group">
           <label>이메일</label>
           <input
-            type="email"
+            type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
