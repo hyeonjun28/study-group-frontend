@@ -4,6 +4,7 @@ import java.util.Map;
 
 // ... (다른 import 생략)
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // 암호화를 위해 필요
+import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.example.demo.ChangePasswordRequest;
+import jakarta.transaction.Transactional;
 
 
 @RestController
@@ -34,6 +37,9 @@ public class AuthController {
 	        return password;
 	    }
 	    // ...
+	 // AuthController.java 파일 내부
+
+	 // 비밀번호 변경 요청을 위한 DTO
 	}
 	
 	
@@ -81,5 +87,39 @@ public class AuthController {
             // 3. 오류 처리 (예: 이메일 중복)
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("success", false, "message", "이미 존재하는 이메일이거나 서버 오류입니다."));
 		}
+	}
+	
+	// AuthController.java 파일 내부에 추가
+	@Transactional
+	@PostMapping("/changepassword")
+	public ResponseEntity<?> changePassword(
+	    @RequestBody ChangePasswordRequest request,
+	    Authentication authentication // 🚨 1. 인증된 사용자 정보를 주입받습니다.
+	) {
+	    // 2. Spring Security Context에서 현재 로그인된 사용자의 ID(Principal)를 추출합니다.
+	    String authenticatedEmail = authentication.getName(); 
+
+	    // 3. 인증된 이메일로 DB에서 사용자 정보를 조회합니다.
+	    User user = repo.findByEmail(authenticatedEmail); 
+
+	    if (user == null) {
+	        // 이론적으로 발생하기 어려운 상황
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("success", false, "message", "사용자 정보를 찾을 수 없습니다."));
+	    }
+	    
+	    // 4. 현재 비밀번호 검증 로직 (기존과 동일)
+	    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+	    if (!encoder.matches(request.getCurrentPassword(), user.getPassword())) {
+	        // 이 검증에서 실패하면 '현재 비밀번호 불일치' 오류 메시지를 반환합니다.
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("success", false, "message", "비밀번호 변경에 실패했습니다. 현재 비밀번호를 다시 확인해주세요."));
+	    }
+	    
+	    // 5. 새 비밀번호 암호화 및 업데이트
+	    String newEncodedPassword = encoder.encode(request.getNewPassword());
+	    user.setPassword(newEncodedPassword);
+	    
+	    // 트랜잭션이 활성화되어 있으므로 자동으로 DB에 반영됩니다.
+	    
+	    return ResponseEntity.status(HttpStatus.OK).body(Map.of("success", true, "message", "비밀번호가 성공적으로 변경되었습니다."));
 	}
 }
