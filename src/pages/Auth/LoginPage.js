@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../api/axios";  // ✅ axios → api
+import api from "../../api/axios"; // ✅ axios → api
 
 function LoginPage() {
   const [email, setEmail] = useState("");

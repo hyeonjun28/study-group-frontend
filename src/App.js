@@ -1,33 +1,27 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 
-// 공통 레이아웃
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 
-// Auth 관련
 import SignUpPage from './pages/Auth/SignUpPage';
 import LoginPage from './pages/Auth/LoginPage';
 
-// Profile 관련
 import ProfilePage from './pages/Profile/ProfilePage';
 import ChangePasswordPage from './pages/Profile/ChangePasswordPage';
 import DeleteAccountPage from './pages/Profile/DeleteAccountPage';
 
-// Study 관련
 import StudyListPage from './pages/Study/StudyListPage';
 import StudyWritePage from './pages/Study/StudyWritePage';
 import StudyDetailPage from './pages/Study/StudyDetailPage';
+import StudyEditPage from './pages/Study/StudyEditPage'; // ✅ 추가됨
 
-// Schedule 관련
 import SchedulePage from './pages/Schedule/SchedulePage';
 
-// ✅ ✅ Auth 전용 레이아웃 (Header/Footer 없음)
 function AuthLayout({ children }) {
   return <div>{children}</div>;
 }
 
-// ✅ ✅ 메인 레이아웃 (Header/Footer 포함)
 function MainLayout({ children }) {
   return (
     <>
@@ -43,10 +37,8 @@ function App() {
     <Router>
       <Routes>
 
-        {/* ✅ 기본 경로 → 로그인으로 리다이렉트 */}
         <Route path="/" element={<Navigate to="/login" />} />
 
-        {/* ✅ 로그인/회원가입: Header/Footer 없는 레이아웃 */}
         <Route
           path="/login"
           element={
@@ -64,7 +56,6 @@ function App() {
           }
         />
 
-        {/* ✅ 메인 페이지: Header/Footer 있는 레이아웃 */}
         <Route
           path="/profile"
           element={
@@ -111,6 +102,14 @@ function App() {
           element={
             <MainLayout>
               <StudyDetailPage />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/study/edit/:id"
+          element={
+            <MainLayout>
+              <StudyEditPage />
             </MainLayout>
           }
         />
