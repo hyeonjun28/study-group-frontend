@@ -8,10 +8,10 @@ function SignUpPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
-  // ✅ state 추가
+  // state 모두 date로 통일
   const [name, setName] = useState('');
-  const [birthDate, setBirthDate] = useState(''); // ✅ 텍스트 입력을 받습니다.
-  const [gender, setGender] = useState(''); // ✅ 텍스트 입력을 받습니다.
+  const [date, setDate] = useState(''); // 🔹 생년월일
+  const [gender, setGender] = useState('');
 
   const navigate = useNavigate();
 
@@ -23,20 +23,19 @@ function SignUpPage() {
       return;
     }
 
-    // ✅ 성별을 입력했는지 확인
     if (!gender) {
       alert('성별을 입력해주세요.');
       return;
     }
 
     try {
-      // ✅ API로 전송하는 데이터에 추가된 정보 포함
+      // 🔹 API 전송 시도
       const response = await api.post('/api/signup', {
         email,
         password,
         name,
-        birthDate, // "YYYY-MM-DD" 형식의 텍스트가 전송됩니다.
-        gender // "남자" 또는 "여자" 텍스트가 전송됩니다.
+        date, // 🔹 date로 통일
+        gender
       });
 
       console.log(response.data);
@@ -59,7 +58,6 @@ function SignUpPage() {
       <h1>회원가입</h1>
       <form onSubmit={handleSignUp} className="auth-form">
         
-        {/* ✅ 이름 입력 필드 */}
         <div className="auth-form-group">
           <label>이름</label>
           <input type="text" value={name}
@@ -67,15 +65,13 @@ function SignUpPage() {
             placeholder="홍길동" required />
         </div>
 
-        {/* ✅ 생년월일 입력 필드 (텍스트로 수정) */}
         <div className="auth-form-group">
           <label>생년월일</label>
-          <input type="text" value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)} 
+          <input type="text" value={date}
+            onChange={(e) => setDate(e.target.value)} 
             placeholder="YYYY-MM-DD" required />
         </div>
 
-        {/* ✅ 성별 입력 필드 (텍스트) */}
         <div className="auth-form-group">
           <label>성별</label>
           <input type="text" value={gender}
@@ -83,7 +79,6 @@ function SignUpPage() {
             placeholder="남자 / 여자" required />
         </div>
 
-        {/* --- 기존 입력 필드 --- */}
         <div className="auth-form-group">
           <label>이메일</label>
           <input type="email" value={email}

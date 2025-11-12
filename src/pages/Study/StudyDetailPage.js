@@ -22,6 +22,7 @@ function StudyDetailPage() {
 
   if (!post) return <p>존재하지 않는 글입니다.</p>;
 
+  // 🔥 삭제: JWT 기반 로그인 사용자만 삭제 가능
   const handleDelete = async () => {
     if (!window.confirm("삭제하시겠습니까?")) return;
 
@@ -31,19 +32,18 @@ function StudyDetailPage() {
       navigate("/study");
     } catch (err) {
       console.error(err);
+      alert("삭제 실패: 본인 글만 삭제할 수 있습니다 ❌");
     }
   };
 
   return (
     <div className="study-page-container">
       <h1 className="study-detail-title">{post.title}</h1>
-
       <p style={{ whiteSpace: 'pre-line', marginBottom: '20px' }}>
         {post.content}
       </p>
 
       <div className="button-group">
-
         <button
           className="study-page-button cancel"
           onClick={() => navigate('/study')}
@@ -64,7 +64,6 @@ function StudyDetailPage() {
         >
           삭제하기
         </button>
-
       </div>
     </div>
   );

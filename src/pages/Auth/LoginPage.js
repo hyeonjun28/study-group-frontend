@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../api/axios"; // ✅ axios → api
+import api from "../../api/axios";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -11,15 +11,13 @@ function LoginPage() {
     e.preventDefault();
 
     try {
-      const res = await api.post(  // ✅ axios → api
-        "/api/login",
-        {
-          username: email,
-          password: password
-        }
-      );
+      const res = await api.post("/api/login", {
+        email: email, // 백엔드와 맞춤
+        password: password
+      });
 
       if (res.data.success) {
+        localStorage.setItem("accessToken", res.data.accessToken); // 토큰 저장
         alert("로그인 성공 ✅");
         navigate("/profile");
       } else {
@@ -37,34 +35,14 @@ function LoginPage() {
       <form onSubmit={handleLogin} className="auth-form">
         <div className="auth-form-group">
           <label>이메일</label>
-          <input
-            type="text"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </div>
-
         <div className="auth-form-group">
           <label>비밀번호</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </div>
-
-        <button className="auth-button" type="submit">
-          로그인
-        </button>
-
-        <button
-          type="button"
-          className="auth-button"
-          style={{ marginTop: "10px" }}
-          onClick={() => navigate("/signup")}
-        >
+        <button className="auth-button" type="submit">로그인</button>
+        <button type="button" className="auth-button" style={{ marginTop: "10px" }} onClick={() => navigate("/signup")}>
           회원가입
         </button>
       </form>
