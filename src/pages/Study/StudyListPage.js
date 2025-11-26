@@ -19,19 +19,28 @@ function StudyListPage() {
   const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false);
   const [sortOption, setSortOption] = useState('latest');
 
-  // ✅ API 전체 조회
+  // ✅ API 전체 조회 (백엔드 /rooms 에서 가져옴)
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await postApi.getPosts(); // ✅ 함수 사용
-        setPosts(res.data);
+        const response = await fetch('/rooms');
+        const data = await response.json();
+        
+        // 🔥 중요: 백엔드 데이터(name, description)를 프론트엔드 변수(title, content)로 맵핑!
+        // 이렇게 하면 아래쪽 화면 코드를 하나도 안 건드려도 됩니다.
+        const mappedData = data.map(room => ({
+          ...room,
+          title: room.name,         // name을 title로 둔갑
+          content: room.description // description을 content로 둔갑
+        }));
+
+        setPosts(mappedData);
       } catch (err) {
         console.error(err);
       }
     };
     load();
   }, []);
-
   // 로컬 저장
   useEffect(() => {
     localStorage.setItem('bookmarkedStudies', JSON.stringify(bookmarked));

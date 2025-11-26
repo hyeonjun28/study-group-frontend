@@ -11,15 +11,27 @@ function StudyWritePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // 로그인한 아이디 가져오기
+    const username = localStorage.getItem('username');
+
     try {
-      const res = await postApi.createPost({
-        title,
-        content,
-        author: "준수"
+      // 🔥 여기만 바뀝니다! (postApi 대신 fetch 사용)
+      const response = await fetch('/rooms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: title,        // 백엔드는 'name'을 원함 -> 우리가 가진 'title'을 줌
+          description: content, // 백엔드는 'description'을 원함 -> 'content'를 줌
+          host: username      // 방장 아이디
+        })
       });
 
-      alert("글이 등록되었습니다!");
-      navigate(`/study/${res.data.id}`);
+      if (response.ok) {
+        alert("스터디가 등록되었습니다!");
+        navigate('/study'); // 목록으로 이동
+      } else {
+        alert("등록 실패");
+      }
     } catch (err) {
       console.error(err);
       alert("서버 오류 발생");

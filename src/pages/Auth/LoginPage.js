@@ -12,12 +12,16 @@ function LoginPage() {
 
     try {
       const res = await api.post("/api/login", {
-        email: email, // 백엔드와 맞춤
+        email: email,
         password: password
       });
 
       if (res.data.success) {
-        localStorage.setItem("accessToken", res.data.accessToken); // 토큰 저장
+        // ▼▼▼▼▼ 여기 딱 한 줄만 추가됨 (기존 로직 영향 X) ▼▼▼▼▼
+        localStorage.setItem("username", email); 
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+        
+        localStorage.setItem("accessToken", res.data.accessToken); // 기존 토큰 저장 유지
         alert("로그인 성공 ✅");
         navigate("/profile");
       } else {
